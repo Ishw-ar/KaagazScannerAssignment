@@ -1,16 +1,21 @@
 package com.varsha.myapplication.views
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.Image
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.varsha.myapplication.R
 
 import kotlinx.android.synthetic.main.activity_main.*
@@ -25,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
+    var flag=true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +40,15 @@ class MainActivity : AppCompatActivity() {
         if (allPermissionsGranted()) {
             startCamera()
 
-            btnFrontPicture.setOnClickListener { startFrontCamera() }
+            btnFrontPicture.setOnClickListener {
+                if (flag) {
+                    startFrontCamera()
+                    flag = false
+                } else {
+                    startCamera()
+                    flag = true
+                }
+            }
         } else {
             ActivityCompat.requestPermissions(
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
@@ -73,6 +87,12 @@ class MainActivity : AppCompatActivity() {
                     val msg = "Photo capture succeeded: $savedUri"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
+                    Glide.with(this@MainActivity).load(savedUri).centerCrop().into(imageView)
+                    imageView.setOnClickListener {
+                        val intent= Intent (this@MainActivity,PreviewActivity::class.java)
+                        intent.putExtra("image",savedUri.toString())
+                        startActivity(intent)
+                    }
                 }
             })
 
