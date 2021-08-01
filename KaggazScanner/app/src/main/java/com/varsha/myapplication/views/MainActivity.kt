@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity() {
 
         if (allPermissionsGranted()) {
             startCamera()
+
+            btnFrontPicture.setOnClickListener { startFrontCamera() }
         } else {
             ActivityCompat.requestPermissions(
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
@@ -76,6 +78,8 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
@@ -94,6 +98,41 @@ class MainActivity : AppCompatActivity() {
                 .build()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            try {
+
+                cameraProvider.unbindAll()
+
+
+                cameraProvider.bindToLifecycle(
+                    this, cameraSelector, preview, imageCapture)
+
+            } catch(exc: Exception) {
+                Log.e(TAG, "Use case binding failed", exc)
+            }
+
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+
+    private fun startFrontCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+
+        cameraProviderFuture.addListener(Runnable {
+
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+
+
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(preview.surfaceProvider)
+                }
+
+            imageCapture = ImageCapture.Builder()
+                .build()
+
+            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
             try {
 
