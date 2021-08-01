@@ -10,17 +10,21 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:name=".views.CameraApplication"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
-        <activity android:name=".views.HomeImageActivity"></activity>
-        <activity android:name=".views.PreviewActivity" />
-        <activity android:name=".views.MainActivity">
+        <activity android:name=".views.HomeImageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+        <activity android:name=".views.PreviewActivity" />
+        <activity android:name=".views.CameraActivity">
+
         </activity>
     </application>
 

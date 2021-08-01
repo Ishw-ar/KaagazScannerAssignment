@@ -3,20 +3,21 @@ package com.varsha.myapplication.views
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.Image
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.varsha.myapplication.R
+import com.varsha.myapplication.data.CameraEntity
+import com.varsha.myapplication.viewmodels.CameraViewModel
+import com.varsha.myapplication.viewmodels.CameraViewModelFactory
 
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
@@ -26,7 +27,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-class MainActivity : AppCompatActivity() {
+class CameraActivity : AppCompatActivity() {
+    private lateinit var viewModel: CameraViewModel
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
@@ -35,6 +37,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val application = application as CameraApplication
+        val repository= application.cameraRepository
+        val viewModelFactory= CameraViewModelFactory(repository)
+        viewModel= ViewModelProviders.of(this,viewModelFactory).get(CameraViewModel::class.java)
+
 
 
         if (allPermissionsGranted()) {
@@ -85,16 +93,24 @@ class MainActivity : AppCompatActivity() {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
                     val msg = "Photo capture succeeded: $savedUri"
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, msg)
-                    Glide.with(this@MainActivity).load(savedUri).centerCrop().into(imageView)
+
+                    Glide.with(this@CameraActivity).load(savedUri).centerCrop().into(imageView)
+                    SaveToDatabase(savedUri.toString())
                     imageView.setOnClickListener {
-                        val intent= Intent (this@MainActivity,PreviewActivity::class.java)
+                        val intent= Intent (this@CameraActivity,PreviewActivity::class.java)
                         intent.putExtra("image",savedUri.toString())
                         startActivity(intent)
                     }
                 }
+
+
             })
+
+    }
+
+    fun SaveToDatabase(path:String){
+        val cameraEntity=CameraEntity(path)
+        viewModel.addImage(cameraEntity)
 
     }
 
