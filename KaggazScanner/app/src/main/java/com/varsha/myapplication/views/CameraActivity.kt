@@ -68,7 +68,7 @@ class CameraActivity : AppCompatActivity() {
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
-
+//Implement Image Capture
     private fun takeImage() {
         val imageCapture = imageCapture ?: return
         val photoFile = File(
