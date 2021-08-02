@@ -44,7 +44,7 @@ class CameraActivity : AppCompatActivity() {
         viewModel= ViewModelProviders.of(this,viewModelFactory).get(CameraViewModel::class.java)
 
 
-
+//Request Camera Permission
         if (allPermissionsGranted()) {
             startCamera()
 
@@ -63,18 +63,14 @@ class CameraActivity : AppCompatActivity() {
         }
 
 
-        btnPicture.setOnClickListener { takeImage() }
-
+        btnPicture.setOnClickListener {
+            takeImage() }
         outputDirectory = getOutputDirectory()
-
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
     private fun takeImage() {
-
         val imageCapture = imageCapture ?: return
-
-
         val photoFile = File(
             outputDirectory,
             SimpleDateFormat(FILENAME_FORMAT, Locale.US
@@ -107,6 +103,7 @@ class CameraActivity : AppCompatActivity() {
             })
 
     }
+    // Save Data TO Database
 
     fun SaveToDatabase(path:String){
         val cameraEntity=CameraEntity(path)
@@ -115,15 +112,11 @@ class CameraActivity : AppCompatActivity() {
     }
 
 
-
+// Implemented Start Camera
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
         cameraProviderFuture.addListener(Runnable {
-
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-
-
             val preview = Preview.Builder()
                 .build()
                 .also {
@@ -132,52 +125,33 @@ class CameraActivity : AppCompatActivity() {
 
             imageCapture = ImageCapture.Builder()
                 .build()
-
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
             try {
-
                 cameraProvider.unbindAll()
-
-
                 cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture)
-
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
-            }
-
-        }, ContextCompat.getMainExecutor(this))
+            } }, ContextCompat.getMainExecutor(this))
     }
 
-
+//implement Front Camera
     private fun startFrontCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
         cameraProviderFuture.addListener(Runnable {
-
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-
-
             val preview = Preview.Builder()
                 .build()
                 .also {
                     it.setSurfaceProvider(preview.surfaceProvider)
                 }
-
             imageCapture = ImageCapture.Builder()
                 .build()
-
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-
             try {
-
                 cameraProvider.unbindAll()
-
-
                 cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture)
-
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
@@ -204,7 +178,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "CameraXBasic"
+        private const val TAG = "CameraX"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
